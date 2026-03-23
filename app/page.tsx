@@ -9,10 +9,14 @@ export default function Home() {
   const [filter, setFilter] = useState("all");
 
   // Load clients
+  const loadClients = async () => {
+    const res = await fetch("/api/clients");
+    const data = await res.json();
+    setClients(data);
+  };
+
   useEffect(() => {
-    fetch("/api/clients")
-      .then((res) => res.json())
-      .then(setClients);
+    loadClients();
   }, []);
 
   // Load tasks
@@ -20,6 +24,24 @@ export default function Home() {
     const res = await fetch(`/api/tasks/${clientId}`);
     const data = await res.json();
     setTasks(data);
+  };
+
+  // Add Client
+  const handleAddClient = async (e: any) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+
+    await fetch("/api/clients", {
+      method: "POST",
+      body: JSON.stringify({
+        company_name: form.get("company_name"),
+        country: form.get("country"),
+        entity_type: form.get("entity_type"),
+      }),
+    });
+
+    e.target.reset();
+    loadClients();
   };
 
   // Add Task
@@ -55,104 +77,157 @@ export default function Home() {
     loadTasks(selectedClient!);
   };
 
-  // Filtered tasks
+  // Filter
   const filteredTasks = tasks.filter((task) => {
     if (filter === "all") return true;
     return task.status === filter;
   });
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Mini Compliance Tracker</h1>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          Compliance Tracker
+        </h1>
 
-      {/* CLIENTS */}
-      <h2 className="font-semibold mb-2">Clients</h2>
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {clients.map((c) => (
-          <button
-            key={c.id}
-            className={`px-3 py-1 border rounded ${
-              selectedClient === c.id ? "bg-blue-200" : ""
-            }`}
-            onClick={() => {
-              setSelectedClient(c.id);
-              loadTasks(c.id);
-            }}
-          >
-            {c.company_name}
-          </button>
-        ))}
-      </div>
+        {/* ADD CLIENT */}
+        <div className="bg-white p-4 rounded shadow mb-6">
+          <h2 className="font-semibold mb-3">Add Client</h2>
 
-      {/* ADD TASK */}
-      {selectedClient && (
-        <form onSubmit={handleAddTask} className="mb-6 space-x-2">
-          <input
-            name="title"
-            placeholder="Task title"
-            className="border p-1"
-            required
-          />
-          <input type="date" name="due_date" className="border p-1" />
-          <input
-            name="category"
-            placeholder="Category"
-            className="border p-1"
-          />
-          <input
-            name="priority"
-            placeholder="Priority"
-            className="border p-1"
-          />
-          <button className="bg-blue-500 text-white px-3 py-1">Add Task</button>
-        </form>
-      )}
-
-      {/* FILTER */}
-      {selectedClient && (
-        <div className="mb-4">
-          <label className="mr-2">Filter:</label>
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="border p-1"
-          >
-            <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="completed">Completed</option>
-          </select>
+          <form onSubmit={handleAddClient} className="flex flex-wrap gap-2">
+            <input
+              name="company_name"
+              placeholder="Company Name"
+              className="border p-2 rounded w-full sm:w-auto"
+              required
+            />
+            <input
+              name="country"
+              placeholder="Country"
+              className="border p-2 rounded"
+            />
+            <input
+              name="entity_type"
+              placeholder="Entity Type"
+              className="border p-2 rounded"
+            />
+            <button className="bg-green-500 text-white px-4 py-2 rounded">
+              Add
+            </button>
+          </form>
         </div>
-      )}
 
-      {/* TASKS */}
-      {filteredTasks.map((task) => {
-        const isOverdue =
-          task.status === "pending" &&
-          task.due_date &&
-          new Date(task.due_date) < new Date();
+        {/* CLIENT LIST */}
+        <div className="bg-white p-4 rounded shadow mb-6">
+          <h2 className="font-semibold mb-3">Clients</h2>
 
-        return (
-          <div
-            key={task.id}
-            className={`border p-3 mb-2 rounded ${
-              isOverdue ? "bg-red-200" : ""
-            }`}
-          >
-            <h3 className="font-semibold">{task.title}</h3>
-            <p>Status: {task.status}</p>
-            <p>Due: {task.due_date}</p>
-
-            {task.status === "pending" && (
+          <div className="flex flex-wrap gap-2">
+            {clients.map((c) => (
               <button
-                onClick={() => updateStatus(task.id)}
-                className="text-blue-600 mt-1"
+                key={c.id}
+                className={`px-4 py-2 rounded border ${
+                  selectedClient === c.id
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
+                }`}
+                onClick={() => {
+                  setSelectedClient(c.id);
+                  loadTasks(c.id);
+                }}
               >
-                Mark Complete
+                {c.company_name}
               </button>
-            )}
+            ))}
           </div>
-        );
-      })}
+        </div>
+
+        {/* TASK SECTION */}
+        {selectedClient && (
+          <div className="bg-white p-4 rounded shadow">
+            <h2 className="font-semibold mb-3">Tasks</h2>
+
+            {/* ADD TASK */}
+            <form
+              onSubmit={handleAddTask}
+              className="flex flex-wrap gap-2 mb-4"
+            >
+              <input
+                name="title"
+                placeholder="Task title"
+                className="border p-2 rounded"
+                required
+              />
+              <input
+                type="date"
+                name="due_date"
+                className="border p-2 rounded"
+              />
+              <input
+                name="category"
+                placeholder="Category"
+                className="border p-2 rounded"
+              />
+              <input
+                name="priority"
+                placeholder="Priority"
+                className="border p-2 rounded"
+              />
+              <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                Add Task
+              </button>
+            </form>
+
+            {/* FILTER */}
+            <div className="mb-4">
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="border p-2 rounded"
+              >
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+
+            {/* TASK LIST */}
+            {filteredTasks.map((task) => {
+              const isOverdue =
+                task.status === "pending" &&
+                task.due_date &&
+                new Date(task.due_date) < new Date();
+
+              return (
+                <div
+                  key={task.id}
+                  className={`p-4 rounded border mb-2 ${
+                    isOverdue ? "bg-red-100 border-red-400" : "bg-gray-50"
+                  }`}
+                >
+                  <div className="flex justify-between">
+                    <div>
+                      <h3 className="font-semibold">{task.title}</h3>
+                      <p className="text-sm text-gray-600">
+                        Due: {task.due_date || "N/A"}
+                      </p>
+                      <p className="text-sm">Status: {task.status}</p>
+                    </div>
+
+                    {task.status === "pending" && (
+                      <button
+                        onClick={() => updateStatus(task.id)}
+                        className="text-blue-600 font-medium"
+                      >
+                        Complete
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
