@@ -8,13 +8,7 @@ Built using **Next.js (App Router)** and **Supabase**.
 
 ## 🌐 Live Demo
 
-👉 https://your-app.vercel.app
-
----
-
-## 📦 GitHub Repository
-
-👉 https://github.com/your-username/your-repo
+https://compilance-tracker-9l8x.vercel.app/
 
 ---
 
