@@ -1,7 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+type Client = {
+  id: string;
+  company_name: string;
+  country: string;
+  entity_type: string;
+};
 
+type Task = {
+  id: string;
+  title: string;
+  due_date: string;
+  status: string;
+};
 export default function Home() {
   const [clients, setClients] = useState<any[]>([]);
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
