@@ -1,30 +1,208 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Mini Compliance Tracker
 
-## Getting Started
+A simple full-stack web application to manage compliance tasks for multiple clients.
 
-First, run the development server:
+Built using **Next.js (App Router)** and **Supabase**.
 
-```bash
-pnpm dev
+---
+
+## 🌐 Live Demo
+
+👉 https://your-app.vercel.app
+
+---
+
+## 📦 GitHub Repository
+
+👉 https://github.com/your-username/your-repo
+
+---
+
+## ✨ Features
+
+### 👥 Clients
+
+* View list of clients
+* Add new clients
+* Select a client to view tasks
+
+### 📋 Tasks
+
+* View tasks for selected client
+* Add new tasks
+* Update task status (Pending → Completed)
+* Filter tasks by status
+* Highlight **overdue tasks**
+
+---
+
+## 🛠️ Tech Stack
+
+* **Frontend:** Next.js (App Router), React, Tailwind CSS
+* **Backend:** Next.js API Routes
+* **Database:** Supabase (PostgreSQL)
+* **Deployment:** Vercel
+
+---
+
+## 🗄️ Database Schema (Supabase)
+
+### 📌 Clients Table
+
+| Column       | Type      |
+| ------------ | --------- |
+| id           | uuid (PK) |
+| company_name | text      |
+| country      | text      |
+| entity_type  | text      |
+
+---
+
+### 📌 Tasks Table
+
+| Column      | Type                     |
+| ----------- | ------------------------ |
+| id          | uuid (PK)                |
+| client_id   | uuid (FK)                |
+| title       | text                     |
+| description | text                     |
+| category    | text                     |
+| due_date    | date                     |
+| status      | text (pending/completed) |
+| priority    | text                     |
+
+---
+
+## 📁 Folder Structure
+
+```
+app/
+ ├── api/
+ │   ├── clients/
+ │   │   └── route.ts        # GET + POST clients
+ │   ├── tasks/
+ │   │   ├── route.ts        # POST task
+ │   │   ├── update/
+ │   │   │   └── route.ts    # PATCH task status
+ │   │   └── [clientId]/
+ │   │       └── route.ts    # GET tasks by client
+ │
+ ├── page.tsx                # Main UI
+
+lib/
+ └── supabaseClient.ts       # Supabase client setup
+
+public/
+styles/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ⚙️ Setup Instructions
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1️⃣ Clone the Repository
 
-## Learn More
+```bash
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 2️⃣ Install Dependencies
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm install --legacy-peer-deps
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 3️⃣ Setup Environment Variables
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Create a `.env.local` file in the root:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+---
+
+### 4️⃣ Setup Database (Supabase)
+
+Run the following SQL in Supabase SQL Editor:
+
+```sql
+create table clients (
+  id uuid primary key default uuid_generate_v4(),
+  company_name text,
+  country text,
+  entity_type text
+);
+
+create table tasks (
+  id uuid primary key default uuid_generate_v4(),
+  client_id uuid references clients(id) on delete cascade,
+  title text,
+  description text,
+  category text,
+  due_date date,
+  status text default 'pending',
+  priority text
+);
+```
+
+---
+
+### 5️⃣ Run the App
+
+```bash
+npm run dev
+```
+
+---
+
+## 🚀 Deployment
+
+The app is deployed using **Vercel**.
+
+Steps:
+
+1. Push code to GitHub
+2. Import project in Vercel
+3. Add environment variables
+4. Deploy
+
+---
+
+## ⚖️ Tradeoffs
+
+* Used Next.js API routes instead of a separate backend for simplicity
+* No authentication to reduce complexity
+* Minimal UI design to focus on functionality
+* Basic validation only
+
+---
+
+## 📌 Assumptions
+
+* Tasks belong to one client
+* Status is either `pending` or `completed`
+* Overdue tasks = pending tasks with past due date
+* No user roles or permissions
+
+---
+
+## 🔮 Future Improvements
+
+* Add authentication (Supabase Auth)
+* Add search and sorting
+* Add dashboard stats (pending / overdue)
+* Improve UI/UX design
+* Add pagination for large datasets
+
+---
+
+## 👨‍💻 Author
+
+Tejas Yogesh
